@@ -38,7 +38,7 @@ module CapistranoResque
            PIDFILE=#{pid} BACKGROUND=yes VERBOSE=1 INTERVAL=#{interval} \
            #{fetch(:bundle_cmd, "bundle")} exec rake \
            #{"environment" if fetch(:resque_environment_task)} \
-           resque:work"
+           resque:work >> #{current_path}/log/resque.log"
         end
 
         def stop_command
