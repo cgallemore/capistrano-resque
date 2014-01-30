@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem 'resque', :git => 'git://github.com/defunkt/resque.git', :branch => '1-x-stable'
+gem 'resque', '~> 1.24.1'
 gem 'resque-scheduler'
 
 gemspec

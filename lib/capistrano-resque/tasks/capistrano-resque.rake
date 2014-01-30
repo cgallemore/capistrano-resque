@@ -47,7 +47,7 @@ namespace :resque do
           number_of_workers.times do
             pid = "./tmp/pids/resque_work_#{worker_id}.pid"
             within current_path do
-              execute :rake, %{RAILS_ENV=#{fetch(:rails_env)} QUEUE="#{queue}" PIDFILE=#{pid} BACKGROUND=yes VERBOSE=1 INTERVAL=#{fetch(:interval)} #{"environment" if fetch(:resque_environment_task)} resque:work}
+              execute :rake, %{RAILS_ENV=#{fetch(:rails_env)} QUEUE="#{queue}" PIDFILE=#{pid} BACKGROUND=yes VERBOSE=1 INTERVAL=#{fetch(:interval)} #{"environment" if fetch(:resque_environment_task)} resque:work >> #{current_path}/log/resque.log}
             end
             worker_id += 1
           end
@@ -67,9 +67,10 @@ namespace :resque do
     on roles(*workers_roles) do
       if test "[ -e #{current_path}/tmp/pids/resque_work_1.pid ]"
         within current_path do
-          pids = capture(:ls, "-1 tmp/pids/resque_work*.pid")
+          pids = capture(:ls, "-1 #{current_path}/tmp/pids/resque_work*.pid")
           pids.each_line do |pid_file|
-            #{sudo} :kill, "-s #{fetch(:resque_kill_signal)} $(cat #{pid_file.chomp}) && rm #{pid_file.chomp}"
+            execute "cat #{pid_file.chomp} | xargs kill -9"
+            execute "rm #{pid_file.chomp}"
           end
         end
       end
